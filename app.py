@@ -17,17 +17,30 @@ config = {
     }
 }
 
-st.title("dayem AI") 
-user_input = st.text_input("Enter your message:")
-init={"messages": [HumanMessage(content= user_input)]}
-response = backend.chatbot.invoke(init,config)
-print(response['messages'][-1].content) 
+st.title("Dayem AI") 
 
+if 'message_history' not in st.session_state:
+    st.session_state['message_history']=[]
+
+
+for message in st.session_state['message_history']:
+    with st.chat_message(message['role']):
+        st.write(message['content'])
+
+user_input = st.chat_input("Enter your message:")
 
 if user_input:
+    st.session_state['message_history'].append({'role':'user','content':user_input})
     with st.chat_message('user'):
-        st.text(user_input)
-    with st.chat_message('AI'):
-        st.text(response['messages'][-1].content)
+        st.write(user_input)
+        
+    init={"messages": [HumanMessage(content= user_input)]}
+        
+    response = backend.chatbot.invoke(init,config) 
+    ai_response = response['messages'][-1].content         
+    st.session_state['message_history'].append({'role':'assistant','content': ai_response})
+        
+    with st.chat_message('assistant'):
+        st.text(ai_response)
         
  
