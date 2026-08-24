@@ -11,18 +11,6 @@ config = {
 }
 
 st.title("Dayem AI")
-"""
-# My first app
-Here's our first attempt at using data to create a table:
-"""
-
-import pandas as pd
-df = pd.DataFrame({
-  'first column': [1, 2, 3, 4],
-  'second column': [10, 20, 30, 40]
-})
-
-df
 
 
 if "message_history" not in st.session_state:
@@ -62,16 +50,28 @@ if user_input:
 
     # Stream assistant response
     with st.chat_message("assistant"):
-        ai_response = st.write_stream(
-            message_chunk.content for message_chunk, metadata in  backend.chatbot.stream(
-                init,
-                config = config,
-                stream_mode = 'messages'
-            )
-        )
-      
 
-  
+        placeholder = st.empty()
+
+        ai_response = ""
+
+        for message, metadata in backend.chatbot.stream(
+            init,
+            config,
+            stream_mode="messages"
+        ):
+
+            if isinstance(message, AIMessageChunk):
+
+                if message.content:
+
+                    ai_response += message.content
+
+                    placeholder.markdown(
+                        ai_response + "▌"
+                    )
+
+        placeholder.markdown(ai_response)
 
 
     # Save final assistant response
@@ -81,4 +81,3 @@ if user_input:
             "content": ai_response
         }
     )
-    
