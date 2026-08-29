@@ -1,8 +1,10 @@
 import streamlit as st
 import backenddb
 import uuid
-
+from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
+import os
 
 
 st.title("Dayem AI")
@@ -32,6 +34,70 @@ if st.session_state.current_thread is None:
 # =========================================================
 
 st.sidebar.title("My Conversations")
+# =========================================================
+# DOCUMENT UPLOAD
+# =========================================================
+
+st.sidebar.subheader("Knowledge Document")
+
+uploaded_file = st.sidebar.file_uploader(
+    "Upload a PDF",
+    type=["pdf"]
+)
+
+if uploaded_file is not None:
+
+    # Prevent rebuilding embeddings on every Streamlit rerun
+    if (
+        "loaded_document" not in st.session_state
+        or st.session_state.loaded_document != uploaded_file.name
+    ):
+
+        with st.sidebar.status(
+            "Processing document...",
+            expanded=True
+        ) as status:
+
+            # Save uploaded file locally
+            os.makedirs(
+                "uploaded_documents",
+                exist_ok=True
+            )
+
+            file_path = os.path.join(
+                "uploaded_documents",
+                uploaded_file.name
+            )
+
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+            st.write("📄 Loading PDF...")
+
+            pages, chunks = backenddb.load_document(
+                file_path
+            )
+
+            st.write(
+                f"Pages: {pages}"
+            )
+
+            st.write(
+                f"Chunks: {chunks}"
+            )
+
+            st.session_state.loaded_document = (
+                uploaded_file.name
+            )
+
+            status.update(
+                label="Document ready",
+                state="complete"
+            )
+
+    st.sidebar.success(
+        f"📚 {uploaded_file.name}"
+    )
 
 if st.sidebar.button("➕ New Chat"):
     create_new_chat()
@@ -91,17 +157,66 @@ if user_input:
         ]
     }
 
+    # with st.chat_message("assistant"):
+    #     ai_response = st.write_stream(
+    #         message_chunk.content
+    #         for message_chunk, metadata
+    #         in backenddb.chatbot.stream(
+    #             init,
+    #             config=config,
+    #             stream_mode="messages"
+    #         )
+    #         if message_chunk.content
+    #     )
+    
+ 
     with st.chat_message("assistant"):
-        ai_response = st.write_stream(
-            message_chunk.content
-            for message_chunk, metadata
-            in backenddb.chatbot.stream(
+
+        def stream_response():
+
+            for message_chunk, metadata in backenddb.chatbot.stream(
                 init,
                 config=config,
                 stream_mode="messages"
-            )
-            if message_chunk.content
+            ):
+
+                # Debugging
+                print("\n==============================")
+                print("MESSAGE TYPE:")
+                print(type(message_chunk))
+
+                print("\nCONTENT:")
+                print(message_chunk.content)
+
+                print("\nTOOL CALLS:")
+                print(getattr(message_chunk, "tool_calls", None))
+
+                print("\nTOOL CALL CHUNKS:")
+                print(getattr(message_chunk, "tool_call_chunks", None))
+
+                print("\nMETADATA:")
+                print(metadata)
+
+                # Display tool call
+                if getattr(message_chunk, "tool_calls", None):
+
+                    for tool_call in message_chunk.tool_calls:
+
+                        st.info(
+                            f"🔧 Tool used: {tool_call['name']}"
+                        )
+
+                # Display streamed answer
+                if message_chunk.content:
+
+                    yield message_chunk.content
+
+
+        ai_response = st.write_stream(
+            stream_response()
         )
+ 
+
 
     # Refresh so this new conversation appears in sidebar.
     st.rerun()

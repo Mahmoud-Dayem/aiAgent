@@ -1,0 +1,20 @@
+{'messages': [HumanMessage(content='What is signal coupling?', additional_kwargs={}, 
+response_metadata={}, id='ba4dac75-7b4a-45a0-a3aa-c13d17d38776'),
+              AIMessage(content='', additional_kwargs={}, 
+              response_metadata={'model': 'qwen3.5:9b', 
+              'created_at': '2026-08-29T17:29:13.1306461Z',
+               'done': True, 'done_reason': 'stop', 'total_duration': 2792388600,
+                'load_duration': 3680500, 'prompt_eval_count': 431,
+                 'prompt_eval_duration': 891637000, 'eval_count': 29,
+                  'eval_duration': 1836667000, 'logprobs': None, 
+                  'model_name': 'qwen3.5:9b', 
+                  'model_provider': 'ollama'}, 
+                  id='lc_run--01a04e91-73c1-7743-96bc-cce047d218f0-0', 
+                  tool_calls=[{'name': 'search_pdf', 'args': {'query': 'signal coupling definition types methods'}, 'id': 'df2d0579-787c-4010-b603-1abda59113f5', 'type': 'tool_call'}], invalid_tool_calls=[], usage_metadata={'input_tokens': 431, 'output_tokens': 29, 'total_tokens': 460}),
+              AIMessage(content='', additional_kwargs={}, 
+              response_metadata={'model': 'qwen3.5:9b', 'created_at':
+               '2026-08-29T17:29:20.2395963Z', 'done': True, 'done_reason':
+                'stop', 'total_duration': 909520700, 'load_duration': 3613800, 
+                'prompt_eval_count': 455, 'prompt_eval_duration': 897451000, 'ev
+                al_count': 1, 'eval_duration': 1000, 'logprobs': None, 'model_name': 'qwen3.5:9b', 'model_provider': 'ollama'}, id='lc_run--01a04e91-96e0-79d0-abfe-fe7cc30d6e26-0', tool_calls=[], invalid_tool_calls=[], usage_metadata={'input_tokens': 455, 'output_tokens': 1, 'total_tokens': 456})],
+ 'tool_approved': None}
